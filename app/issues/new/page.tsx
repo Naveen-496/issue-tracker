@@ -12,12 +12,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createIssueSchema } from "@/app/validationSchea";
 import { z } from "zod";
 import ErrorMessage from "@/components/ErrorMessage";
+import Spinner from "@/components/Spinner";
 
 type IssueForm = z.infer< typeof createIssueSchema>;
 
 
 const NewIssuePage = () => {
-  const { register, control, handleSubmit, formState: { errors} } = useForm<IssueForm>({
+  const { register, control, handleSubmit, formState: { errors, isSubmitting} } = useForm<IssueForm>({
     resolver: zodResolver( createIssueSchema)
   });
   const router = useRouter();
@@ -59,7 +60,7 @@ const NewIssuePage = () => {
           )}
         />
         <ErrorMessage children={ errors.description?.message} />
-        <Button>Submit New Issue</Button>
+        <Button disabled={ isSubmitting }>{ isSubmitting &&  <Spinner />} Submit New Issue</Button>
       </form>
       <Toaster richColors position="top-center" />
     </div>
