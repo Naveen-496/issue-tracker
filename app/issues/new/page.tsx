@@ -1,9 +1,7 @@
 "use client";
-import SimpleMDE from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import { Button, Callout, Text, TextArea, TextField } from "@radix-ui/themes";
 import { Controller, useForm } from "react-hook-form";
-import { data } from "autoprefixer";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
@@ -13,11 +11,18 @@ import { createIssueSchema } from "@/app/validationSchea";
 import { z } from "zod";
 import ErrorMessage from "@/components/ErrorMessage";
 import Spinner from "@/components/Spinner";
+import delay from "delay";
+import dynamic from "next/dynamic";
+
+const SimpleMDE = dynamic(
+      () => import("react-simplemde-editor"), {
+        ssr: false
+      } )
 
 type IssueForm = z.infer< typeof createIssueSchema>;
 
 
-const NewIssuePage = () => {
+const NewIssuePage = async () => {
   const { register, control, handleSubmit, formState: { errors, isSubmitting} } = useForm<IssueForm>({
     resolver: zodResolver( createIssueSchema)
   });
@@ -38,6 +43,8 @@ const NewIssuePage = () => {
       toast.error(error.message);
     }
   };
+
+   await delay(1000);
 
   return (
     <div className="max-w-xl">
