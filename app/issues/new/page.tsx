@@ -1,75 +1,8 @@
-"use client";
-import { createIssueSchema } from "@/app/validationSchea";
-import { Spinner, ErrorMessage } from "@/components";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Callout, TextField } from "@radix-ui/themes";
-import axios from "axios";
-import "easymde/dist/easymde.min.css";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { Toaster, toast } from "sonner";
-import { z } from "zod";
+import React from "react";
+import IssueForm from "../_components/IssueForm";
 
-const SimpleMDE = dynamic(
-      () => import("react-simplemde-editor"), {
-        ssr: false
-      } )
-
-type IssueForm = z.infer< typeof createIssueSchema>;
-
-
-const NewIssuePage = async () => {
-  const { register, control, handleSubmit, formState: { errors, isSubmitting} } = useForm<IssueForm>({
-    resolver: zodResolver( createIssueSchema)
-  });
-  const router = useRouter();
-  const [ error, setError ] = useState("");
-
-  const postData = async (data: IssueForm) => {
-    try {
-      console.log("Posting the form data : ", data);
-      await axios.post("/api/issues", data);
-      toast.success("New Issue created successfully");
-      setTimeout(() => {
-         router.push("/issues");
-      }, 2000);
-     
-    } catch (error: any) {
-      setError( error.message);
-      toast.error(error.message);
-    }
-  };
-
-
-
-  return (
-    <div className="max-w-xl">
-    { error && <Callout.Root className="mb-5" color="red">
-       <Callout.Text>{error}</Callout.Text>
-      </Callout.Root>}
-      <form
-        className="space-y-5"
-        onSubmit={handleSubmit((data) => postData(data))}
-      >
-        <TextField.Root>
-          <TextField.Input placeholder="Title" {...register("title")} />
-        </TextField.Root>
-        <ErrorMessage children={ errors.title?.message} />
-        <Controller
-          name="description"
-          control={control}
-          render={({ field }) => (
-            <SimpleMDE placeholder="Description" {...field} />         
-          )}
-        />
-        <ErrorMessage children={ errors.description?.message} />
-        <Button disabled={ isSubmitting }>{ isSubmitting &&  <Spinner />} Submit New Issue</Button>
-      </form>
-      <Toaster richColors position="top-center" />
-    </div>
-  );
+const NewIssuePage = () => {
+  return <IssueForm />;
 };
 
 export default NewIssuePage;
