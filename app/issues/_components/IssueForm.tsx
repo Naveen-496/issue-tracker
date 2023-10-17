@@ -1,5 +1,5 @@
 "use client";
-import { createIssueSchema } from "@/app/validationSchea";
+import { issueSchema } from "@/app/validationSchea";
 import { Spinner, ErrorMessage } from "@/components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Issue } from "@prisma/client";
@@ -13,61 +13,75 @@ import { Controller, useForm } from "react-hook-form";
 import { Toaster, toast } from "sonner";
 import { z } from "zod";
 
-const SimpleMDE = dynamic(
-      () => import("react-simplemde-editor"), {
-        ssr: false
-      } )
+const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
+  ssr: false,
+});
 
-type IssueFormData = z.infer< typeof createIssueSchema>;
+type IssueFormData = z.infer<typeof issueSchema>;
 
-
-const IssueForm = async ({ issue }: { issue?: Issue}) => {
-  const { register, control, handleSubmit, formState: { errors, isSubmitting} } = useForm<IssueFormData>({
-    resolver: zodResolver( createIssueSchema)
+const IssueForm = ({ issue }: { issue?: Issue }) => {
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<IssueFormData>({
+    resolver: zodResolver(issueSchema),
   });
   const router = useRouter();
-  const [ error, setError ] = useState("");
+  const [error, setError] = useState("");
 
   const postData = async (data: IssueFormData) => {
     try {
       console.log("Posting the form data : ", data);
-      await axios.post("/api/issues", data);
-      toast.success("New Issue created successfully");
+      if (issue) {
+        await axios.patch("/api/issues/" + issue.id, data);
+        toast.success("Issue updated successfully");
+      } else {
+        await axios.post("/api/issues", data);
+        toast.success("New Issue created successfully");
+      }
+
       setTimeout(() => {
-         router.push("/issues");
+        router.push("/issues");
       }, 2000);
-     
     } catch (error: any) {
-      setError( error.message);
+      setError(error.message);
       toast.error(error.message);
     }
   };
 
-
-
   return (
     <div className="max-w-xl">
-    { error && <Callout.Root className="mb-5" color="red">
-       <Callout.Text>{error}</Callout.Text>
-      </Callout.Root>}
+      {error && (
+        <Callout.Root className="mb-5" color="red">
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
+      )}
       <form
         className="space-y-5"
         onSubmit={handleSubmit((data) => postData(data))}
       >
         <TextField.Root>
-          <TextField.Input defaultValue={ issue?.title} placeholder="Title" {...register("title")} />
+          <TextField.Input
+            defaultValue={issue?.title}
+            placeholder="Title"
+            {...register("title")}
+          />
         </TextField.Root>
-        <ErrorMessage children={ errors.title?.message} />
+        <ErrorMessage children={errors.title?.message} />
         <Controller
           name="description"
           control={control}
-          defaultValue={ issue?.description}
+          defaultValue={issue?.description}
           render={({ field }) => (
-            <SimpleMDE placeholder="Description" {...field} />         
+            <SimpleMDE placeholder="Description" {...field} />
           )}
         />
-        <ErrorMessage children={ errors.description?.message} />
-        <Button disabled={ isSubmitting }>{ isSubmitting &&  <Spinner />} Submit New Issue</Button>
+        <ErrorMessage children={errors.description?.message} />
+        <Button disabled={isSubmitting}>
+          {isSubmitting && <Spinner />} { issue ? "Update Issue" : "Submit New Issue"}
+        </Button>
       </form>
       <Toaster richColors position="top-center" />
     </div>
