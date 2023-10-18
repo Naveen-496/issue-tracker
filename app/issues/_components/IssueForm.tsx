@@ -44,6 +44,7 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
 
       setTimeout(() => {
         router.push("/issues");
+        router.refresh();
       }, 2000);
     } catch (error: any) {
       setError(error.message);
@@ -69,7 +70,9 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
             {...register("title")}
           />
         </TextField.Root>
-        <ErrorMessage children={errors.title?.message} />
+        <ErrorMessage>
+        {errors.title?.message}
+        </ErrorMessage>
         <Controller
           name="description"
           control={control}
@@ -78,7 +81,9 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
             <SimpleMDE placeholder="Description" {...field} />
           )}
         />
-        <ErrorMessage children={errors.description?.message} />
+        <ErrorMessage>
+        {errors.description?.message} 
+        </ErrorMessage>
         <Button disabled={isSubmitting}>
           {isSubmitting && <Spinner />} { issue ? "Update Issue" : "Submit New Issue"}
         </Button>

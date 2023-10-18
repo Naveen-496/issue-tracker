@@ -1,5 +1,6 @@
 import { issueSchema } from "@/app/validationSchea";
 import prisma from "@/prisma/client";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
@@ -35,6 +36,8 @@ export async function PATCH(
       status: body.status,
     },
   });
+
+  revalidatePath("/issues");
 
   return NextResponse.json( updatedIssue, { status: 200});
 }
