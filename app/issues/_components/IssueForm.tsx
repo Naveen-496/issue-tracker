@@ -1,21 +1,18 @@
 "use client";
 import { issueSchema } from "@/app/validationSchea";
-import { Spinner, ErrorMessage } from "@/components";
+import { ErrorMessage, Spinner } from "@/components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Issue } from "@prisma/client";
 import { Button, Callout, TextField } from "@radix-ui/themes";
 import axios from "axios";
 import "easymde/dist/easymde.min.css";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Toaster, toast } from "sonner";
 import { z } from "zod";
 
-const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
-  ssr: false,
-});
+import SimpleMDE from "react-simplemde-editor";
 
 type IssueFormData = z.infer<typeof issueSchema>;
 
@@ -70,9 +67,7 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
             {...register("title")}
           />
         </TextField.Root>
-        <ErrorMessage>
-        {errors.title?.message}
-        </ErrorMessage>
+        <ErrorMessage>{errors.title?.message}</ErrorMessage>
         <Controller
           name="description"
           control={control}
@@ -81,11 +76,10 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
             <SimpleMDE placeholder="Description" {...field} />
           )}
         />
-        <ErrorMessage>
-        {errors.description?.message} 
-        </ErrorMessage>
+        <ErrorMessage>{errors.description?.message}</ErrorMessage>
         <Button disabled={isSubmitting}>
-          {isSubmitting && <Spinner />} { issue ? "Update Issue" : "Submit New Issue"}
+          {isSubmitting && <Spinner />}{" "}
+          {issue ? "Update Issue" : "Submit New Issue"}
         </Button>
       </form>
       <Toaster richColors position="top-center" />
