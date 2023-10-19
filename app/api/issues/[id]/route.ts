@@ -26,7 +26,7 @@ export async function PATCH(
   if (!issue)
     return NextResponse.json({ message: "Record Not Found" }, { status: 404 });
 
-  const updatedIssue =  await prisma.issue.update({
+  const updatedIssue = await prisma.issue.update({
     where: {
       id: issue.id,
     },
@@ -39,5 +39,34 @@ export async function PATCH(
 
   revalidatePath("/issues");
 
-  return NextResponse.json( updatedIssue, { status: 200});
+  return NextResponse.json(updatedIssue, { status: 200 });
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params: { id } }: { params: { id: string } }
+) {
+
+  console.log("entered into the delete function");
+
+  const issue = await prisma.issue.findUnique({
+    where: {
+      id: parseInt(id),
+    },
+  });
+
+  if (!issue)
+    return NextResponse.json({ message: "Record Not Found" }, { status: 404 });
+
+  const result = await prisma.issue.delete({
+    where: {
+      id: parseInt(id),
+    },
+  });
+
+  console.log("deleted the iuuse : ", result);
+
+  return NextResponse.json(result, {
+    statusText: "Issue deleted successfully",
+  });
 }

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import EditIssueButton from "./EditIssueButton";
 import IssueDetails from "./IssueDetails";
 import DeleteIssueButton from "./DeleteIssueButton";
+import { Toaster, toast } from "sonner";
 
 interface Props {
   params: { id: string };
@@ -20,6 +21,8 @@ const IssueDetailPage = async ({ params: { id } }: Props) => {
   // await delay(1000);
 
   return (
+    <>
+    <Toaster />
     <Grid columns={{ initial: "1", sm: "5" }} gap="5">
       <Box className="md:col-span-4">
         <IssueDetails issue={issue} />
@@ -31,6 +34,7 @@ const IssueDetailPage = async ({ params: { id } }: Props) => {
         </Flex>
       </Box>
     </Grid>
+    </>
   );
 };
 
