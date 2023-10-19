@@ -6,6 +6,8 @@ import EditIssueButton from "./EditIssueButton";
 import IssueDetails from "./IssueDetails";
 import DeleteIssueButton from "./DeleteIssueButton";
 import { Toaster, toast } from "sonner";
+import { getServerSession } from "next-auth";
+import authOptions from "@/app/auth/authOptions";
 
 interface Props {
   params: { id: string };
@@ -18,6 +20,8 @@ const IssueDetailPage = async ({ params: { id } }: Props) => {
 
   if (!issue) notFound();
 
+  const session = await getServerSession( authOptions );
+
   // await delay(1000);
 
   return (
@@ -27,12 +31,12 @@ const IssueDetailPage = async ({ params: { id } }: Props) => {
       <Box className="md:col-span-4">
         <IssueDetails issue={issue} />
       </Box>
-      <Box>
+      {session && <Box>
         <Flex gap="5" direction="column">
           <EditIssueButton params={{ id: issue.id }} />
           <DeleteIssueButton issueId={issue.id} />
         </Flex>
-      </Box>
+      </Box>}
     </Grid>
     </>
   );
