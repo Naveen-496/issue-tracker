@@ -2,18 +2,16 @@
 import { AlertDialog, Button, Flex } from "@radix-ui/themes";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { Toaster, toast } from "sonner";
 
-const DeleteIssueButton = ({
-  issueId
-}: {
-  issueId: number
-}) => {
+const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
+  const [error, setError] = useState("");
   const router = useRouter();
 
   async function handleDelete() {
     try {
+     
       const result = await axios.delete("/api/issues/" + issueId);
       toast.success(result.statusText);
       setTimeout(() => {
@@ -21,7 +19,8 @@ const DeleteIssueButton = ({
         router.refresh();
       }, 2000);
     } catch (error: any) {
-      toast.error(error.message);
+      // toast.error(error.message);
+      setError(error.message);
     }
   }
 
@@ -51,6 +50,20 @@ const DeleteIssueButton = ({
               </Button>
             </AlertDialog.Action>
           </Flex>
+        </AlertDialog.Content>
+      </AlertDialog.Root>
+      <AlertDialog.Root open={error ? true : false}>
+        <AlertDialog.Content>
+          <AlertDialog.Title color="red">Error</AlertDialog.Title>
+          <AlertDialog.Description>{error}</AlertDialog.Description>
+          <Button
+            color="gray"
+            variant="soft"
+            mt="2"
+            onClick={() => setError("")}
+          >
+            OK
+          </Button>
         </AlertDialog.Content>
       </AlertDialog.Root>
     </>
