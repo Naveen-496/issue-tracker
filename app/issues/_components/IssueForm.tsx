@@ -40,7 +40,7 @@ const IssueForm = ({ issue }: { issue?: Issue }) => {
       }
 
       setTimeout(() => {
-        router.push("/issues");
+        router.push("/issues/list");
         router.refresh();
       }, 2000);
     } catch (error: any) {

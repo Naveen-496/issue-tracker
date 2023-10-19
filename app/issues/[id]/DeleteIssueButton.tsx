@@ -1,4 +1,5 @@
 "use client";
+import { Spinner } from "@/components";
 import { AlertDialog, Button, Flex } from "@radix-ui/themes";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -7,20 +8,23 @@ import { Toaster, toast } from "sonner";
 
 const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
   const [error, setError] = useState("");
+  const [ isDeleting, setIsDeleting ] = useState( false );
   const router = useRouter();
 
   async function handleDelete() {
     try {
      
+      setIsDeleting( true );
       const result = await axios.delete("/api/issues/" + issueId);
       toast.success(result.statusText);
       setTimeout(() => {
-        router.push("/issues");
+        router.push("/issues/list");
         router.refresh();
       }, 2000);
     } catch (error: any) {
       // toast.error(error.message);
       setError(error.message);
+      setIsDeleting( false );
     }
   }
 
@@ -29,8 +33,8 @@ const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
       <Toaster richColors />
       <AlertDialog.Root>
         <AlertDialog.Trigger>
-          <Button className="cursor-pointer" color="ruby">
-            Delete Issue
+          <Button className="cursor-pointer" color="ruby" disabled={isDeleting}>
+          { isDeleting && <Spinner />}  Delete Issue
           </Button>
         </AlertDialog.Trigger>
         <AlertDialog.Content>
@@ -45,8 +49,8 @@ const DeleteIssueButton = ({ issueId }: { issueId: number }) => {
               </Button>
             </AlertDialog.Cancel>
             <AlertDialog.Action>
-              <Button color="red" onClick={handleDelete}>
-                Delete
+              <Button color="red" onClick={handleDelete} >
+               Delete
               </Button>
             </AlertDialog.Action>
           </Flex>
