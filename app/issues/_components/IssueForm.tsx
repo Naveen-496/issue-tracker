@@ -1,5 +1,5 @@
 "use client";
-import { issueSchema } from "@/app/validationSchea";
+import { issueSchema } from "@/app/validationSchema";
 import { ErrorMessage, Spinner } from "@/components";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Issue } from "@prisma/client";

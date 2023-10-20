@@ -1,4 +1,4 @@
-import { issueSchema } from "@/app/validationSchea";
+import { issueSchema, patchIssueSchema } from "@/app/validationSchema";
 import prisma from "@/prisma/client";
 import delay from "delay";
 import { revalidatePath } from "next/cache";
@@ -9,13 +9,27 @@ export async function PATCH(
   { params: { id } }: { params: { id: string } }
 ) {
   const body = await request.json();
-  const validation = issueSchema.safeParse(body);
+  const validation = patchIssueSchema.safeParse(body);
 
   if (!validation.success) {
     return NextResponse.json(
       { message: validation.error.errors[0].message },
       { status: 400 }
     );
+  }
+
+  const { assignedToUserId, title, description, status } = body;
+
+  if (assignedToUserId) {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: assignedToUserId,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ message: "Invalid User" }, { status: 400 });
+    }
   }
 
   const issue = await prisma.issue.findUnique({
@@ -32,9 +46,10 @@ export async function PATCH(
       id: issue.id,
     },
     data: {
-      title: body.title,
-      description: body.description,
-      status: body.status,
+      title,
+      description,
+      status,
+      assignedToUserId,
     },
   });
 
@@ -47,8 +62,6 @@ export async function DELETE(
   request: NextRequest,
   { params: { id } }: { params: { id: string } }
 ) {
-
- 
   const issue = await prisma.issue.findUnique({
     where: {
       id: parseInt(id),
