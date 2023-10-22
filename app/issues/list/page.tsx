@@ -2,9 +2,14 @@ import prisma from "@/prisma/client";
 import { Issue, Status } from "@prisma/client";
 import IssuesAction from "./IssuesAction";
 import IssuesTable from "./IssuesTable";
+import Pagination from "@/components/Pagination";
 
 interface Props {
-  searchParams: { status: Status; orderBy: keyof Issue };
+  searchParams: {
+    status: Status;
+    orderBy: keyof Issue;
+    page: string;
+  };
 }
 
 const IssuesPage = async ({ searchParams }: Props) => {
@@ -23,6 +28,8 @@ const IssuesPage = async ({ searchParams }: Props) => {
     ? searchParams.status
     : undefined;
 
+  const where = { status };  
+
   const orderBy = columns
     .map((column) => column.value)
     .includes(searchParams.orderBy)
@@ -31,12 +38,17 @@ const IssuesPage = async ({ searchParams }: Props) => {
       }
     : undefined;
 
+  const page = parseInt(searchParams.page) || 1;
+  const pageSize = 10;
+
   const issues = await prisma.issue.findMany({
-    where: {
-      status: status,
-    },
+    where,
     orderBy,
+    skip: (page - 1) * pageSize,
+    take: pageSize,
   });
+
+  const issueCount = await prisma.issue.count({ where });
   //  await delay(2000);
   return (
     <div className="">
@@ -45,6 +57,11 @@ const IssuesPage = async ({ searchParams }: Props) => {
         issues={issues}
         columns={columns}
         searchParams={searchParams}
+      />
+      <Pagination
+        itemCount={ issueCount }
+        pageSize={pageSize}
+        currentPage={ page }
       />
     </div>
   );
