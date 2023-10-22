@@ -5,25 +5,27 @@ import { Table } from "@radix-ui/themes";
 import NextLink from "next/link";
 import React from "react";
 
-const IssuesTable = ({
-  issues,
-  columns,
-  searchParams,
-}: {
-  searchParams: { status: Status; orderBy: keyof Issue };
+export interface IssueQuery {
+  status: Status;
+  orderBy: keyof Issue;
+  page: string;
+}
+
+interface Props {
+  searchParams: IssueQuery;
   issues: Issue[];
-  columns: {
-    label: string;
-    value: keyof Issue;
-    classnName?: string;
-  }[];
-}) => {
+}
+
+const IssuesTable = ({ issues, searchParams }: Props) => {
   return (
     <Table.Root variant="surface">
       <Table.Header>
         <Table.Row>
           {columns.map((column) => (
-            <Table.ColumnHeaderCell key={column.label} className={ column.classnName}>
+            <Table.ColumnHeaderCell
+              key={column.label}
+              className={column.classnName}
+            >
               <NextLink
                 href={{
                   query: { ...searchParams, orderBy: column.value },
@@ -59,5 +61,17 @@ const IssuesTable = ({
     </Table.Root>
   );
 };
+
+const columns: {
+  label: string;
+  value: keyof Issue;
+  classnName?: string;
+}[] = [
+  { label: "Title", value: "title" },
+  { label: "Status", value: "status", classnName: "hidden md:table-cell" },
+  { label: "Created", value: "issuedAt", classnName: "hidden md:table-cell" },
+];
+
+export const columnNames = columns.map((column) => column.value);
 
 export default IssuesTable;

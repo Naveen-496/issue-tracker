@@ -1,38 +1,23 @@
 import prisma from "@/prisma/client";
 import { Issue, Status } from "@prisma/client";
 import IssuesAction from "./IssuesAction";
-import IssuesTable from "./IssuesTable";
+import IssuesTable, { IssueQuery, columnNames } from "./IssuesTable";
 import Pagination from "@/components/Pagination";
+import { Flex } from "@radix-ui/themes";
 
-interface Props {
-  searchParams: {
-    status: Status;
-    orderBy: keyof Issue;
-    page: string;
-  };
+export interface Props {
+  searchParams: IssueQuery;
 }
 
 const IssuesPage = async ({ searchParams }: Props) => {
-  const columns: {
-    label: string;
-    value: keyof Issue;
-    classnName?: string;
-  }[] = [
-    { label: "Title", value: "title" },
-    { label: "Status", value: "status", classnName: "hidden md:table-cell" },
-    { label: "Created", value: "issuedAt", classnName: "hidden md:table-cell" },
-  ];
-
   const statuses = Object.values(Status);
   const status = statuses.includes(searchParams.status)
     ? searchParams.status
     : undefined;
 
-  const where = { status };  
+  const where = { status };
 
-  const orderBy = columns
-    .map((column) => column.value)
-    .includes(searchParams.orderBy)
+  const orderBy = columnNames.includes(searchParams.orderBy)
     ? {
         [searchParams.orderBy]: "asc",
       }
@@ -51,19 +36,15 @@ const IssuesPage = async ({ searchParams }: Props) => {
   const issueCount = await prisma.issue.count({ where });
   //  await delay(2000);
   return (
-    <div className="">
+    <Flex direction="column" gap="4">
       <IssuesAction />
-      <IssuesTable
-        issues={issues}
-        columns={columns}
-        searchParams={searchParams}
-      />
+      <IssuesTable issues={issues} searchParams={searchParams} />
       <Pagination
-        itemCount={ issueCount }
+        itemCount={issueCount}
         pageSize={pageSize}
-        currentPage={ page }
+        currentPage={page}
       />
-    </div>
+    </Flex>
   );
 };
 
